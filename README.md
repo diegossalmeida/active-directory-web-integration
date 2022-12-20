@@ -1,6 +1,6 @@
 # ASP.NET Core Web API + React sample for managing Microsoft Active Directory objects
 
-This sample demonstrates using the ASP.NET Core Web API and React library for managing Microsoft Active Directory objects: create, read, update and delete users, update user's password etc.
+This sample demonstrates using the ASP.NET Core Web API and React library for managing Microsoft Active Directory objects: create, read, update and delete users, update user's password etc. 
 
 ## Code of note
 
