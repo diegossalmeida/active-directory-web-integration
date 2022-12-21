@@ -44,17 +44,26 @@ namespace ActiveDirectory.WebAPI.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<User>))]
-        public ActionResult<IEnumerable<User>> GetAll(string? name, string? employeeId)
+        public ActionResult<IEnumerable<User>> GetAll(string? firstName, string? lastName, string? email, string? employeeId)
         {
-            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(employeeId))
-                return NotFound();
+            if (string.IsNullOrEmpty(firstName)
+                && string.IsNullOrEmpty(lastName)
+                && string.IsNullOrEmpty(email)
+                && string.IsNullOrEmpty(employeeId))
+                return Ok(Enumerable.Empty<User>());
 
             using var context = accountManagementHelper.GetPrincipalContext();
 
             using var queryFilter = new UserPrincipal(context);
 
-            if (string.IsNullOrEmpty(name) == false)
-                queryFilter.Name = $"*{name}*";
+            if (string.IsNullOrEmpty(firstName) == false)
+                queryFilter.GivenName = $"*{firstName}*";
+
+            if (string.IsNullOrEmpty(lastName) == false)
+                queryFilter.Surname = $"*{lastName}*";
+
+            if (string.IsNullOrEmpty(email) == false)
+                queryFilter.EmailAddress = $"*{email}*";
 
             if (string.IsNullOrEmpty(employeeId) == false)
                 queryFilter.EmployeeId = $"*{employeeId}*";
@@ -68,7 +77,7 @@ namespace ActiveDirectory.WebAPI.Controllers
                 return Ok(users.Select(p => MapUserPrincipalToUser((UserPrincipal)p)).ToList());
             }
 
-            return NotFound();
+            return Ok(Enumerable.Empty<User>());
         }
 
 
