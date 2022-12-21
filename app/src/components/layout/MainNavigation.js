@@ -18,11 +18,6 @@ const MainNavigation = () => {
               Create
             </NavDropdown.Item>
           </NavDropdown>
-          <NavItem>
-            <Nav.Link as={Link} to="/test">
-              Test
-            </Nav.Link>
-          </NavItem>
         </Nav>
       </Container>
     </Navbar>

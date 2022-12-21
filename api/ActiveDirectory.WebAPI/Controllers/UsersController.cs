@@ -193,6 +193,16 @@ namespace ActiveDirectory.WebAPI.Controllers
         {
             using var directoryEntry = (DirectoryEntry)userPrincipal.GetUnderlyingObject();
 
+            // User must set password if pwdLastSet is 0 and UF_DONT_EXPIRE_PASSWD is not set
+            // https://learn.microsoft.com/pt-br/windows/win32/adschema/a-pwdlastset?redirectedfrom=MSDN
+            int.TryParse(directoryEntry.Properties[UserPrincipalAttributes.UserAccountControl].Value?.ToString(), out int flags);
+
+            int UF_DONT_EXPIRE_PASSWD = 0x10000;
+
+            var isDontExpireSet = Convert.ToBoolean(flags & UF_DONT_EXPIRE_PASSWD);
+
+            var mustChangePassword = userPrincipal.LastPasswordSet.HasValue == false && isDontExpireSet == false;
+
             return new User
             {
                 ObjectId = userPrincipal.Guid ?? Guid.Empty,
@@ -215,6 +225,8 @@ namespace ActiveDirectory.WebAPI.Controllers
                 PasswordNeverExpires = userPrincipal.PasswordNeverExpires,
                 AllowReversiblePasswordEncryption = userPrincipal.AllowReversiblePasswordEncryption,
                 SmartcardLogonRequired = userPrincipal.SmartcardLogonRequired,
+
+                MustChangePassword = mustChangePassword,
 
                 // Profile
                 LogonScript = userPrincipal.ScriptPath,
@@ -255,6 +267,8 @@ namespace ActiveDirectory.WebAPI.Controllers
                 EmployeeNumber = directoryEntry.Properties[UserPrincipalAttributes.EmployeeNumber].Value?.ToString(),
                 EmployeeType = directoryEntry.Properties[UserPrincipalAttributes.EmployeeType].Value?.ToString(),
             };
+
+
         }
 
         private static void UpdateDirectoryEntryAttributes(DirectoryEntry directoryEntry, User user)
@@ -336,7 +350,7 @@ namespace ActiveDirectory.WebAPI.Controllers
             directoryEntry.Properties[UserPrincipalAttributes.Office].Clear();
             directoryEntry.Properties[UserPrincipalAttributes.WebPage].Clear();
 
-            // Address
+            //// Address
             directoryEntry.Properties[UserPrincipalAttributes.Street].Clear();
             directoryEntry.Properties[UserPrincipalAttributes.PostOfficeBox].Clear();
             directoryEntry.Properties[UserPrincipalAttributes.City].Clear();
@@ -345,7 +359,9 @@ namespace ActiveDirectory.WebAPI.Controllers
 
             directoryEntry.Properties[UserPrincipalAttributes.Country].Clear();
             directoryEntry.Properties[UserPrincipalAttributes.CountryName].Clear();
-            directoryEntry.Properties[UserPrincipalAttributes.CountryCode].Clear();
+
+            // CountryCode cannot be cleared, so we will set it to 0
+            directoryEntry.Properties[UserPrincipalAttributes.CountryCode].Value = "0";
 
             // Profile
             directoryEntry.Properties[UserPrincipalAttributes.ProfilePath].Clear();

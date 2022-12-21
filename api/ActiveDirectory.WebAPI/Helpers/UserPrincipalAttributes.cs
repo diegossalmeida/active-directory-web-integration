@@ -36,6 +36,8 @@
 
         public const string Pager = "pager";
 
+        public const string PasswordLastSet = "pwdLastSet";
+
         public const string PostalCode = "postalCode";
 
         public const string PostOfficeBox = "postOfficeBox";
@@ -47,6 +49,8 @@
         public const string State = "st";
 
         public const string Title = "title";
+
+        public const string UserAccountControl = "userAccountControl";
 
         public const string WebPage = "wWWHomePage";
     }

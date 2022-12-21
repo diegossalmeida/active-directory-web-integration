@@ -1,12 +1,84 @@
 import { Form, Row, InputGroup, Button, Col } from "react-bootstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const UserForm = (props) => {
-  const [formValue, setFormValue] = useState({});
+  const defaultState = {
+    objectId: "00000000-0000-0000-0000-000000000000",
+    firstName: "",
+    lastName: "",
+    initials: "",
+    name: "",
+    displayName: "",
+    description: "",
+    office: "",
+    telephoneNumber: "",
+    email: "",
+    webPage: "",
+    street: "",
+    postOfficeBox: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "",
+    logonName: "",
+    samAccountName: "",
+    accountExpirationDate: "",
+    mustChangePassword: true,
+    userCannotChangePassword: false,
+    passwordNeverExpires: false,
+    allowReversiblePasswordEncryption: false,
+    enabled: true,
+    smartcardLogonRequired: false,
+    profilePath: "",
+    logonScript: "",
+    homeTelephoneNumber: "",
+    pager: "",
+    mobile: "",
+    fax: "",
+    ipPhone: "",
+    notes: "",
+    jobTitle: "",
+    department: "",
+    company: "",
+    employeeId: "",
+    employeeNumber: "",
+    employeeType: "",
+  };
+
+  const [formValue, setFormValue] = useState(defaultState);
   const [validated, setValidated] = useState(false);
 
+  useEffect(() => {
+    if (props.user) {
+      let updatedValues = { ...props.user };
+
+      Object.keys(updatedValues).forEach(
+        (k) =>
+          (updatedValues[k] = updatedValues[k] === null ? "" : updatedValues[k])
+      );
+
+      if (updatedValues.accountExpirationDate) {
+        updatedValues.accountExpirationDate = new Date(
+          updatedValues.accountExpirationDate
+        )
+          .toISOString()
+          .substring(0, 10);
+      }
+
+      setFormValue(updatedValues);
+    }
+  }, [props.user, setFormValue]);
+
   const handleInputChange = (event) => {
-    setFormValue({ ...formValue, [event.target.name]: event.target.value });
+    const value =
+      event.target.type === "checkbox"
+        ? !formValue[event.target.name]
+        : event.target.value;
+
+    setFormValue({
+      ...formValue,
+      [event.target.name]: value,
+    });
   };
 
   const handleSubmit = (event) => {
@@ -16,13 +88,24 @@ const UserForm = (props) => {
 
     if (form.checkValidity() === false) {
       event.stopPropagation();
+    } else {
+      const user = { ...formValue };
+
+      Object.keys(user).forEach(
+        (k) => (user[k] = user[k] === "" ? null : user[k])
+      );
+
+      if (props.onSaveUser) props.onSaveUser(user);
     }
 
     setValidated(true);
+  };
 
+  const handleDelete = (event) => {
+    event.preventDefault();
     const user = { ...formValue };
 
-    props.onCreateUser(user);
+    if (props.onDeleteUser) props.onDeleteUser(user);
   };
 
   return (
@@ -36,7 +119,8 @@ const UserForm = (props) => {
             type="text"
             required
             name="firstName"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.firstName}
           />
           <Form.Control.Feedback type="invalid">
             Please provide a valid first name.
@@ -49,7 +133,8 @@ const UserForm = (props) => {
             type="text"
             required
             name="lastName"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.lastName}
           />
           <Form.Control.Feedback type="invalid">
             Please provide a valid last name.
@@ -61,7 +146,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="initials"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.initials}
           />
         </Form.Group>
       </Row>
@@ -73,7 +159,8 @@ const UserForm = (props) => {
             type="text"
             required
             name="name"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.name}
           />
           <Form.Control.Feedback type="invalid">
             Please provide a valid full name.
@@ -85,7 +172,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="displayName"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.displayName}
           />
         </Form.Group>
       </Row>
@@ -96,7 +184,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="description"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.description}
           />
         </Form.Group>
         <Form.Group as={Col} md="6" controlId="formOffice">
@@ -105,7 +194,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="office"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.office}
           />
         </Form.Group>
       </Row>
@@ -116,7 +206,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="telephoneNumber"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.telephoneNumber}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formEmail">
@@ -125,7 +216,8 @@ const UserForm = (props) => {
             className="form-control"
             type="email"
             name="email"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.email}
           />
           <Form.Control.Feedback type="invalid">
             Please provide a valid e-mail address.
@@ -137,7 +229,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="webPage"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.webPage}
           />
         </Form.Group>
       </Row>
@@ -149,7 +242,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="street"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.street}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formPOBox">
@@ -158,7 +252,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="postOfficeBox"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.postOfficeBox}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formCity">
@@ -167,7 +262,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="city"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.city}
           />
         </Form.Group>
       </Row>
@@ -178,7 +274,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="state"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.state}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formPostalCode">
@@ -187,12 +284,17 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="postalCode"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.postalCode}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formCountry">
           <Form.Label>Country / region</Form.Label>
-          <Form.Select name="country" onChange={handleInputChange}>
+          <Form.Select
+            name="country"
+            onChange={handleInputChange}
+            value={formValue.country}
+          >
             <option></option>
             <option value="1">Brazil</option>
             <option value="2">United States</option>
@@ -207,20 +309,30 @@ const UserForm = (props) => {
             <Form.Control
               className="form-control"
               type="text"
+              required
               name="logonName"
-              onBlur={handleInputChange}
+              onChange={handleInputChange}
+              value={formValue.logonName}
             />
             <InputGroup.Text id="basic-addon2">@example.com</InputGroup.Text>
           </InputGroup>
+          <Form.Control.Feedback type="invalid">
+            Please provide a valid user logon name.
+          </Form.Control.Feedback>
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formSamAccountName">
           <Form.Label>User logon name (pre-Windows 2000)</Form.Label>
           <Form.Control
             className="form-control"
             type="text"
+            required
             name="samAccountName"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.samAccountName}
           />
+          <Form.Control.Feedback type="invalid">
+            Please provide a valid user logon name (pre-Windows 2000).
+          </Form.Control.Feedback>
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formAccountExpirationDate">
           <Form.Label>Account Expires</Form.Label>
@@ -228,7 +340,8 @@ const UserForm = (props) => {
             className="form-control"
             type="date"
             name="accountExpirationDate"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.accountExpirationDate}
           />
         </Form.Group>
       </Row>
@@ -240,6 +353,7 @@ const UserForm = (props) => {
             label="User must change password at next logon"
             name="mustChangePassword"
             onChange={handleInputChange}
+            checked={formValue.mustChangePassword}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formCannotChangePassword">
@@ -249,6 +363,7 @@ const UserForm = (props) => {
             label="User cannot change password"
             name="userCannotChangePassword"
             onChange={handleInputChange}
+            checked={formValue.userCannotChangePassword}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formPassWordNeverExpires">
@@ -258,6 +373,7 @@ const UserForm = (props) => {
             label="Password never expires"
             name="passwordNeverExpires"
             onChange={handleInputChange}
+            checked={formValue.passwordNeverExpires}
           />
         </Form.Group>
       </Row>
@@ -269,15 +385,17 @@ const UserForm = (props) => {
             label="Store password using reversible encryption"
             name="allowReversiblePasswordEncryption"
             onChange={handleInputChange}
+            checked={formValue.allowReversiblePasswordEncryption}
           />
         </Form.Group>
-        <Form.Group as={Col} md="4" controlId="formAccountDisabled">
+        <Form.Group as={Col} md="4" controlId="formAccountDisbled">
           <Form.Check
             type="switch"
-            id="accountDisabled"
+            id="AccountDisbled"
             label="Account is disabled"
             name="enabled"
             onChange={handleInputChange}
+            checked={!formValue.enabled}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formSmartCard">
@@ -285,8 +403,9 @@ const UserForm = (props) => {
             type="switch"
             id="smartCard"
             label="Smart card is required for interactive logon"
-            name="allowReversiblePasswordEncryption"
+            name="smartcardLogonRequired"
             onChange={handleInputChange}
+            checked={formValue.smartcardLogonRequired}
           />
         </Form.Group>
       </Row>
@@ -298,7 +417,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="profilePath"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.profilePath}
           />
         </Form.Group>
         <Form.Group as={Col} md="6" controlId="formLogonScript">
@@ -307,7 +427,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="logonScript"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.logonScript}
           />
         </Form.Group>
       </Row>
@@ -319,7 +440,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="homeTelephoneNumber"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.homeTelephoneNumber}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formPager">
@@ -328,7 +450,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="pager"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.pager}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formMobileNumber">
@@ -337,7 +460,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="mobile"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.mobile}
           />
         </Form.Group>
       </Row>
@@ -348,7 +472,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="fax"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.fax}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formIPNumber">
@@ -356,8 +481,9 @@ const UserForm = (props) => {
           <Form.Control
             className="form-control"
             type="text"
-            name="iPPhone"
-            onBlur={handleInputChange}
+            name="ipPhone"
+            onChange={handleInputChange}
+            value={formValue.ipPhone}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formNotes">
@@ -366,7 +492,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="notes"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.notes}
           />
         </Form.Group>
       </Row>
@@ -378,7 +505,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="jobTitle"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.jobTitle}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formDepartment">
@@ -387,7 +515,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="department"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.department}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formCompany">
@@ -396,7 +525,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="company"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.company}
           />
         </Form.Group>
       </Row>
@@ -407,7 +537,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="employeeId"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.employeeId}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formEmployeeNumber">
@@ -416,7 +547,8 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="employeeNumber"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.employeeNumber}
           />
         </Form.Group>
         <Form.Group as={Col} md="4" controlId="formEmployeeType">
@@ -425,13 +557,25 @@ const UserForm = (props) => {
             className="form-control"
             type="text"
             name="employeeType"
-            onBlur={handleInputChange}
+            onChange={handleInputChange}
+            value={formValue.employeeType}
           />
         </Form.Group>
       </Row>
-      <Button variant="success" type="submit">
+      <Button variant="success" type="submit" disabled={props.processing}>
         Save
-      </Button>
+      </Button>{" "}
+      {formValue.objectId &&
+        formValue.objectId !== "00000000-0000-0000-0000-000000000000" && (
+          <Button
+            variant="danger"
+            type="button"
+            onClick={handleDelete}
+            disabled={props.processing}
+          >
+            Delete
+          </Button>
+        )}
     </Form>
   );
 };

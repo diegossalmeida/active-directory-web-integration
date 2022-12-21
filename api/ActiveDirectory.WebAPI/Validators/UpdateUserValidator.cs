@@ -19,6 +19,11 @@ namespace ActiveDirectory.WebAPI.Validators
                 .NotEmpty()
                 .Must((u, s) => Exists(u, IdentityType.SamAccountName, s) == false)
                 .WithMessage((x, s) => $"There is already an user with SamAccountName '{s}'");
+
+            RuleFor(x => x.LogonName)
+                .NotEmpty()
+                .Must((u, s) => Exists(u, IdentityType.UserPrincipalName, s) == false)
+                .WithMessage((x, s) => $"There is already an user with LogonName '{s}'");
         }
 
         private bool Exists(User user, IdentityType identityType, string samAccountName)

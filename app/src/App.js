@@ -4,6 +4,7 @@ import NotFound from "./pages/NotFound";
 import Users from "./pages/Users";
 import Home from "./pages/Home";
 import NewUser from "./pages/NewUser";
+import EditUser from "./pages/EditUser";
 
 function App() {
   return (
@@ -18,8 +19,8 @@ function App() {
         <Route path="/users/new-user" exact>
           <NewUser />
         </Route>
-        <Route path="/users/:userId">
-          <p>User edit</p>
+        <Route path="/users/:samAccountName">
+          <EditUser />
         </Route>
         <Route path="*">
           <NotFound />
